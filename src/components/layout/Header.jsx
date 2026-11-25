@@ -3,7 +3,7 @@ function Header() {
     <header className="header">
       <h1>Sistema Contable</h1>
 
-      <span>👤 Usuario</span>
+      <span>👤 Usuario: Lic. Aud. ZULMA VICTORIA ARIZACA CONDORI</span>
     </header>
   )
 }
