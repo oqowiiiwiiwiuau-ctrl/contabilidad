@@ -1,41 +1,43 @@
 // src/pages/Dashboard.jsx
 import { Link } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
-import { useEmpresa } from '../hooks/useEmpresa'
-import { useCuentas } from '../hooks/useCuentas'
+import { useEffect, useState } from 'react'
+import { useEmpresa } from '../context/EmpresaContext'
+import { getCuentasByEmpresa } from '../services/cuentasService'
 
 export default function Dashboard() {
-  const { empresaId } = useApp()
-  const { empresa, loading: loadingEmpresa, error: errorEmpresa } = useEmpresa(empresaId)
-  const { cuentas } = useCuentas(empresaId)
+  const { empresaActiva } = useEmpresa()
+  const [totalCuentas, setTotalCuentas] = useState(0)
+  const [loadingCuentas, setLoadingCuentas] = useState(true)
 
-  if (loadingEmpresa) {
+  // Cargamos el conteo de cuentas reales de la empresa seleccionada
+  useEffect(() => {
+    if (!empresaActiva) return
+
+    async function cargarConteo() {
+      setLoadingCuentas(true)
+      try {
+        const cuentas = await getCuentasByEmpresa(empresaActiva.id)
+        setTotalCuentas(cuentas.length)
+      } catch (err) {
+        console.error("Error al contar cuentas:", err)
+      } finally {
+        setLoadingCuentas(false)
+      }
+    }
+    cargarConteo()
+  }, [empresaActiva])
+
+  if (!empresaActiva) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: '#666' }}>
-        Cargando empresa...
-      </div>
-    )
-  }
-
-  if (errorEmpresa) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center', color: 'red' }}>
-        Error: {errorEmpresa}
-      </div>
-    )
-  }
-
-  if (!empresa) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center', color: '#666' }}>
-        No hay empresa seleccionada.
+        No hay empresa seleccionada. Por favor, vuelve al inicio.
       </div>
     )
   }
 
   return (
     <div style={{ padding: 32, maxWidth: 1100, margin: '0 auto' }}>
-      {/* Card de la empresa */}
+      {/* TARJETA AZUL ORIGINAL (con datos dinámicos) */}
       <div
         style={{
           background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
@@ -63,7 +65,8 @@ export default function Dashboard() {
           </div>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 26, fontWeight: 'bold', margin: 0 }}>
-              {empresa.nombre}
+              {/* 👇 ESTO ES LO QUE CAMBIA DINÁMICAMENTE */}
+              {empresaActiva.nombre}
             </h1>
             <div
               style={{
@@ -74,15 +77,17 @@ export default function Dashboard() {
                 opacity: 0.9,
               }}
             >
-              <span>NIT: {empresa.nit || '—'}</span>
-              <span>Moneda: {empresa.moneda || 'BOB'}</span>
-              <span>{cuentas.length} cuentas activas</span>
+              <span>NIT: {empresaActiva.nit || '—'}</span>
+              <span>Moneda: {empresaActiva.moneda || 'BOB'}</span>
+              <span>
+                {loadingCuentas ? 'Contando...' : `${totalCuentas} cuentas activas`}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Acciones */}
+      {/* ACCIONES (Tus tarjetas de siempre) */}
       <h2
         style={{
           fontSize: 18,
@@ -130,6 +135,7 @@ export default function Dashboard() {
   )
 }
 
+// Tu componente DashCard se mantiene intacto
 function DashCard({ to, icon, titulo, descripcion }) {
   return (
     <Link

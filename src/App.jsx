@@ -9,7 +9,7 @@ import SeleccionEmpresa from './pages/SeleccionEmpresa'
 import Dashboard from './pages/Dashboard'
 import PlanCuentas from './pages/PlanCuentas'
 import Asientos from './pages/Asientos'
-import Libros from './pages/Libros'
+import LibroMayor from './pages/LibroMayor'
 import Reportes from './pages/Reportes'
 
 import './App.css'
@@ -26,7 +26,7 @@ function RutasProtegidas() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/cuentas" element={<PlanCuentas />} />
       <Route path="/asientos" element={<Asientos />} />
-      <Route path="/libros" element={<Libros />} />
+      <Route path="/libros" element={<LibroMayor />} />
       <Route path="/reportes" element={<Reportes />} />
     </Routes>
   )
